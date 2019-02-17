@@ -18,12 +18,29 @@ function [F, M] = controller(t, state, des_state, params)
 
 % =================== Your code goes here ===================
 
-% Thrust
-F = 0;
+%% Thrust
+%kdr = [0;0;300];          %kdx; kdy; kdz
+kdr = [10;10;10];          %kdx; kdy; kdz
+kpr = [500;500;500];         %kpx; kpy; kpz 300; 300; 300
+kdangle = [1;1;1];      %kdphi; kdtheta; kdpsi
+kpangle = [200;200;200];   %kpphi; kdtheta; kdpsi
 
-% Moment
-M = zeros(3,1);
+% Calculate r_ddot_command1,2,3
+r_ddot_command = des_state.acc + kdr.*(des_state.vel - state.vel) + kpr.*(des_state.pos - state.pos);
+% u1 = m(g+r_ddot_command_3)
+F = params.mass * (params.gravity + r_ddot_command(3));
+
+%% Moment
+phi_command = (r_ddot_command(1)*sin(des_state.yaw) - r_ddot_command(2)*cos(des_state.yaw))/params.gravity;
+theta_command = (r_ddot_command(1)*cos(des_state.yaw) + r_ddot_command(2)*sin(des_state.yaw))/params.gravity;
+psi_command = des_state.yaw;
+M = [ kpangle(1)*(phi_command - state.rot(1)) + kdangle(1)*(phi_command - state.omega(1));
+    kpangle(2)*(theta_command - state.rot(2)) + kdangle(2)*(theta_command - state.omega(2));
+    kpangle(3)*(psi_command - state.rot(3)) + kdangle(3)*(psi_command - state.omega(3));];
 
 % =================== Your code ends here ===================
-
+% state.vel
+% des_state.vel
+% state.rot(3)
+% des_state.yaw
 end
