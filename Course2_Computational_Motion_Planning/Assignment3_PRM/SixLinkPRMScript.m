@@ -1,7 +1,9 @@
 %
 % SixLinkPRMScript.
 %
-
+clc
+clear
+close all
 
 %% Drawing the robot
 figure;
@@ -9,7 +11,7 @@ figure;
 % The SixLinkRobot function computes layout of all of the links in the
 % robot as a function of the 6 configuration space parameters. You can
 % adjust these sixe numbers to see what happens.
-fv = SixLinkRobot ([-120 120 -120 120 -120 60]);
+fv = SixLinkRobot ([240 120 240 120 240 60]);
 
 fv2 = SixLinkRobot ([0 0 0 0 0 180]);
 
@@ -37,7 +39,7 @@ patch (obstacle);
 
 %% Build roadmap
 
-nsamples = 200;
+nsamples = 100;
 neighbors = 5;
 
 roadmap = PRM (@()(RandomSampleSixLink(obstacle)), @DistSixLink, @(x,y)(LocalPlannerSixLink(x,y,obstacle)), nsamples, neighbors);

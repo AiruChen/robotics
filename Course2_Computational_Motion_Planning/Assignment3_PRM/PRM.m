@@ -29,7 +29,7 @@ x = RandomSample();
 
 % Array of random samples, each column corresponds to the coordinates
 % of a point in configuration space.
-samples = repmat(x(:), 1, nsamples);
+samples = repmat(x(:), 1, nsamples);  
 
 % edges - an array with 2 rows each column has two integer entries
 % (i, j) which encodes the fact that sample i and sample j are connected
@@ -57,7 +57,6 @@ for i = 2:nsamples
     % distance between the new sample and each of the samples that has been
     % generated so far in the program.
     distances = Dist(x, samples(:,1:(i-1)));
-    
     %%% YOUR CODE HERE
     %
     % Find the closest k samples, use the LocalPlanner function to see if
@@ -65,10 +64,35 @@ for i = 2:nsamples
     % edge_lengths and nedges variables accordingly.
     %
     
+    if (i>k+1)
+        k_temp = [1:k ; distances(1:k)];
+        [max_dis, replace_number] = max(k_temp, [], 2);
+        for j = k+1:i-1
+            if (distances(j)<max_dis(2))
+                k_temp(2, replace_number(2)) = distances(j);
+                k_temp(1, replace_number(2)) = j;
+                [max_dis, replace_number] = max(k_temp, [], 2);
+            end
+        end
+    else
+        k_temp = [ 1:i-1 ; distances(1:i-1)];
+    end
     fprintf (1, 'nsamples = %d, nedges = %d\n', i, nedges);
+    
+    for j = 1:size(k_temp, 2)
+        if (LocalPlanner(samples(:,i), samples(:,k_temp(1,j))))
+          nedges = nedges + 1;
+          edges(nedges, :) = [i k_temp(1,j)];
+          edge_lengths(nedges) = k_temp(2, j);
+        end
+    end
+    
    
 end
+
 
 roadmap.samples = samples;
 roadmap.edges = edges(1:nedges, :);
 roadmap.edge_lengths = edge_lengths(1:nedges);
+
+end
